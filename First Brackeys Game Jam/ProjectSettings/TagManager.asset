@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Enemy
+  - Neutral
+  - Wandering Point
+  - Neutral Move Point
   layers:
   - Default
   - TransparentFX
@@ -40,4 +44,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 4000235513
+    locked: 0
+  - name: Entities
+    uniqueID: 2787382403
     locked: 0
