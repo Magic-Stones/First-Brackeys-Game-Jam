@@ -17,11 +17,13 @@ public class EnemyAIScript : MonoBehaviour
     private float moveTimeLimit, idleTimeLimit;
 
     private Transform playerTarget;
+    private GameManagerScript gameManagerScript;
 
     // Start is called before the first frame update
     void Start()
     {
         playerTarget = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
+        gameManagerScript = FindObjectOfType<GameManagerScript>();
 
         idleTimeLimit = Random.Range(minimumLimit, excludedLimit);
     }
@@ -35,7 +37,7 @@ public class EnemyAIScript : MonoBehaviour
     // FixedUpdate is called every fixed framerate frame
     void FixedUpdate()
     {
-        if (playerTarget != null)
+        if (!gameManagerScript.gameIsOver)
         {
             MoveTiming();
 

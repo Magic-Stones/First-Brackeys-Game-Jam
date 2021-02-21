@@ -9,55 +9,44 @@ public class RandomSpawnScript : MonoBehaviour
     public int setEnemySpawnLimit = 5, 
                setNeutralSpawnLimit = 3;
     public int neutralSpawnLimit = 0, 
-               countSpawnLimit;
+               enemySpawnCount = 0;
  
     public Transform[] spawnPoints;
     public GameObject[] spawnNeutrals;
     public GameObject[] spawnEnemies;
     public GameObject player;
 
+    private GameManagerScript gameManagerScript;
+
     private float slimeSpawnTime;
 
     private int enemySpawnLimit = 0;
-    private int totalSpawnLimit;
 
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+        gameManagerScript = FindObjectOfType<GameManagerScript>();
 
         slimeSpawnTime = setSlimeSpawnTime;
 
-        totalSpawnLimit = setEnemySpawnLimit + setNeutralSpawnLimit;
-        countSpawnLimit = 0;
+        EnemySlimeSpawn();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (player != null)
+        if (!gameManagerScript.gameIsOver)
         {
             slimeSpawnTime -= Time.deltaTime;
 
-            if (countSpawnLimit < totalSpawnLimit)
+            if (slimeSpawnTime <= 0f)
             {
-                if (slimeSpawnTime <= 0f)
-                {
-                    int randomSpawn = Random.Range(1, 3);
+                EnemySlimeSpawn();
 
-                    switch (randomSpawn)
-                    {
-                        case 1:
-                            EnemySlimeSpawn();
-                            break;
+                NeutralSlimeSpawn();
 
-                        case 2:
-                            NeutralSlimeSpawn();
-                            break;
-                    }
-
-                    slimeSpawnTime = setSlimeSpawnTime;
-                }
+                slimeSpawnTime = setSlimeSpawnTime;
             }
         }
     }
@@ -71,8 +60,7 @@ public class RandomSpawnScript : MonoBehaviour
 
             Instantiate(spawnEnemies[randomEnemy], spawnPoints[randomSpawnPoint].position, Quaternion.identity);
             enemySpawnLimit++;
-
-            countSpawnLimit++;
+            enemySpawnCount++;
         }
     }
 
@@ -98,8 +86,6 @@ public class RandomSpawnScript : MonoBehaviour
             }
 
             neutralSpawnLimit++;
-
-            countSpawnLimit++;
         }
     }
 }

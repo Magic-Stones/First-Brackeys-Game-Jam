@@ -19,10 +19,13 @@ public class PlayerMovementScript : MonoBehaviour
     private Rigidbody2D rigidBody2D;
     private Vector2 movement;
 
+    private GameManagerScript gameManagerScript;
+
     // Start is called before the first frame update
     void Start()
     {
         rigidBody2D = GetComponent<Rigidbody2D>();
+        gameManagerScript = FindObjectOfType<GameManagerScript>();
 
         //RandomStartDirection();
     }
@@ -38,11 +41,14 @@ public class PlayerMovementScript : MonoBehaviour
     // FixedUpdate is called every fixed framerate frame
     void FixedUpdate()
     {
-        MoveTiming();
+        if (!gameManagerScript.gameIsOver)
+        {
+            MoveTiming();
+
+            MovePosition();
+        }
 
         //MoveDirection();
-
-        MovePosition();
     }
 
     private void RandomStartDirection()

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class PlayerManagerScript : MonoBehaviour
 {
@@ -9,8 +8,10 @@ public class PlayerManagerScript : MonoBehaviour
     public Camera cameraOrthographic;
     public Vector3 offsetCameraPosition,
                    offsetLocalScale;
+    private Transform player, playerSpawn;
 
     private RandomSpawnScript randomSpawnScript;
+    private GameManagerScript gameManagerScript;
 
     public int playerStrength;
 
@@ -19,7 +20,11 @@ public class PlayerManagerScript : MonoBehaviour
     {
         playerStrength = 0;
 
-        randomSpawnScript = GetComponent<RandomSpawnScript>();
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
+        playerSpawn = GameObject.FindGameObjectWithTag("Spawn").GetComponent<Transform>();
+
+        randomSpawnScript = FindObjectOfType<RandomSpawnScript>();
+        gameManagerScript = FindObjectOfType<GameManagerScript>();
     }
 
     // Update is called once per frame
@@ -34,12 +39,14 @@ public class PlayerManagerScript : MonoBehaviour
         {
             if (collision.GetComponent<EnemyAIScript>().enemySizeID == 0 && playerStrength == 0)
             {
+                gameManagerScript.GameOver("Lose");
                 Destroy(gameObject);
             }
             else
             {
                 if (collision.GetComponent<EnemyAIScript>().enemySizeID > playerStrength)
                 {
+                    gameManagerScript.GameOver("Lose");
                     Destroy(gameObject);
                 }
                 else if (collision.GetComponent<EnemyAIScript>().enemySizeID == playerStrength)
@@ -47,10 +54,13 @@ public class PlayerManagerScript : MonoBehaviour
                     transform.localScale = transform.localScale - offsetLocalScale;
                     playerStrength--;
                     cameraOrthographic.orthographicSize--;
+
+                    randomSpawnScript.enemySpawnCount--;
                     Destroy(collision.gameObject);
                 }
                 else if (collision.GetComponent<EnemyAIScript>().enemySizeID < playerStrength)
                 {
+                    randomSpawnScript.enemySpawnCount--;
                     Destroy(collision.gameObject);
                 }
             }
@@ -64,6 +74,7 @@ public class PlayerManagerScript : MonoBehaviour
                 playerStrength++;
                 cameraOrthographic.orthographicSize++;
 
+                randomSpawnScript.neutralSpawnLimit--;
                 Destroy(collision.gameObject);
             }
             else
@@ -74,9 +85,15 @@ public class PlayerManagerScript : MonoBehaviour
                     playerStrength++;
                     cameraOrthographic.orthographicSize++;
 
+                    randomSpawnScript.neutralSpawnLimit--;
                     Destroy(collision.gameObject);
                 }
             }
+        }
+
+        if (collision.tag.Contains("Border"))
+        {
+            player.position = playerSpawn.position;
         }
     }
 

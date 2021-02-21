@@ -11,8 +11,16 @@ public class SlimeAIScript : MonoBehaviour
     public float stoppingDistance = 0.2f;
     public float minimumLimit, excludedLimit;
 
+    private WanderingPointsScript wanderingPointsScript;
+    public Transform[] wanderingPoints;
+    private int randomPoint;
+
+    private RandomSpawnScript randomSpawnScript;
+
+    /*
     private Transform movePoint;
     public float minX, maxX, minY, maxY;
+    */
 
     private bool canMove;
 
@@ -22,18 +30,27 @@ public class SlimeAIScript : MonoBehaviour
     private float toggleSpeed;
 
     private GameObject player;
+    private GameManagerScript gameManagerScript;
 
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+        wanderingPointsScript = FindObjectOfType<WanderingPointsScript>();
+        gameManagerScript = FindObjectOfType<GameManagerScript>();
+
+        randomSpawnScript = FindObjectOfType<RandomSpawnScript>();
 
         waitTime = startWaitTime;
 
         idleTimeLimit = Random.Range(minimumLimit, excludedLimit);
 
+        randomPoint = Random.Range(0, wanderingPointsScript.wanderPoints.Length);
+
+        /*
         movePoint = GameObject.FindGameObjectWithTag("Wandering Point").GetComponent<Transform>();
         movePoint.position = new Vector2(Random.Range(minX, maxX), Random.Range(minY, maxY));
+        */
     }
 
     // Update is called once per frame
@@ -45,9 +62,9 @@ public class SlimeAIScript : MonoBehaviour
     // FixedUpdate is called every fixed framerate frame
     void FixedUpdate()
     {
-        if (player != null)
+        if (!gameManagerScript.gameIsOver)
         {
-            WanderMoving();
+            Wandering();
         }
     }
 
@@ -97,10 +114,27 @@ public class SlimeAIScript : MonoBehaviour
         }
     }
 
-    private void WanderMoving()
+    private void Wandering()
     {
         MoveTiming();
 
+        transform.position = Vector2.MoveTowards(transform.position, wanderingPointsScript.wanderPoints[randomPoint].position, 
+                                                toggleSpeed * Time.fixedDeltaTime);
+
+        if (Vector2.Distance(transform.position, wanderingPointsScript.wanderPoints[randomPoint].position) < stoppingDistance)
+        {
+            if (waitTime <= 0f)
+            {
+                randomPoint = Random.Range(0, wanderingPointsScript.wanderPoints.Length);
+                waitTime = startWaitTime;
+            }
+            else
+            {
+                waitTime -= Time.fixedDeltaTime;
+            }
+        }
+
+        /*
         transform.position = Vector2.MoveTowards(transform.position, movePoint.position, toggleSpeed * Time.fixedDeltaTime);
 
         if (Vector2.Distance(transform.position, movePoint.position) < stoppingDistance)
@@ -115,5 +149,6 @@ public class SlimeAIScript : MonoBehaviour
                 waitTime -= Time.fixedDeltaTime;
             }
         }
+        */
     }
 }
