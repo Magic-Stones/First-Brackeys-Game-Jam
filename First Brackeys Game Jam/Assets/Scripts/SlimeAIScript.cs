@@ -4,53 +4,45 @@ using UnityEngine;
 
 public class SlimeAIScript : MonoBehaviour
 {
+    public float moveSpeed = 0.1f;
+    public float setWaitTime = 3f;
+    public float decreasePlayerMoveSpeed = 0.75f;
+
     public int neutralSizeID = 0;
 
-    public float moveSpeed = 0.1f;
-    public float startWaitTime = 3f;
-    public float stoppingDistance = 0.2f;
-    public float minimumLimit, excludedLimit;
+    private Animator animator;
 
-    private WanderingPointsScript wanderingPointsScript;
-    public Transform[] wanderingPoints;
-    private int randomPoint;
-
+    private GameManagerScript gameManagerScript;
     private RandomSpawnScript randomSpawnScript;
 
-    /*
-    private Transform movePoint;
-    public float minX, maxX, minY, maxY;
-    */
+    private bool canMove = false;
 
-    private bool canMove;
-
-    [SerializeField] private float moveTime, idleTime;
+    private float distanceThreshold = 0.2f;
+    private float moveTime, 
+                  idleTime;
     private float waitTime;
-    private float moveTimeLimit, idleTimeLimit;
-    private float toggleSpeed;
+    private float minMoveSpeed,
+                  maxMoveSpeed,
+                  randomSpeed;
+    private float defaultMoveSpeed;
 
-    private GameObject player;
-    private GameManagerScript gameManagerScript;
+    private int randomPoint;
 
     // Start is called before the first frame update
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
-        wanderingPointsScript = FindObjectOfType<WanderingPointsScript>();
-        gameManagerScript = FindObjectOfType<GameManagerScript>();
+        animator = GetComponent<Animator>();
 
+        gameManagerScript = FindObjectOfType<GameManagerScript>();
         randomSpawnScript = FindObjectOfType<RandomSpawnScript>();
 
-        waitTime = startWaitTime;
+        waitTime = setWaitTime;
 
-        idleTimeLimit = Random.Range(minimumLimit, excludedLimit);
+        minMoveSpeed = moveSpeed - 0.5f;
+        maxMoveSpeed = moveSpeed + 0.5f;
+        randomSpeed = Random.Range(minMoveSpeed, maxMoveSpeed);
 
-        randomPoint = Random.Range(0, wanderingPointsScript.wanderPoints.Length);
-
-        /*
-        movePoint = GameObject.FindGameObjectWithTag("Wandering Point").GetComponent<Transform>();
-        movePoint.position = new Vector2(Random.Range(minX, maxX), Random.Range(minY, maxY));
-        */
+        randomPoint = Random.Range(0, gameManagerScript.wanderingPoints.Length);
     }
 
     // Update is called once per frame
@@ -62,9 +54,25 @@ public class SlimeAIScript : MonoBehaviour
     // FixedUpdate is called every fixed framerate frame
     void FixedUpdate()
     {
-        if (!gameManagerScript.gameIsOver)
+        if (!gameManagerScript.GetGameIsOver())
         {
+            MoveTiming();
             Wandering();
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag.Equals("Enemy"))
+        {
+            if (collision.GetComponent<EnemyAIScript>().enemySizeID == 0 && neutralSizeID == 0)
+            {
+                Destroy(gameObject);
+            }
+            else if (collision.GetComponent<EnemyAIScript>().enemySizeID > neutralSizeID)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 
@@ -74,81 +82,66 @@ public class SlimeAIScript : MonoBehaviour
         {
             idleTime = 0f;
             
-            if (waitTime == startWaitTime)
+            if (waitTime == setWaitTime)
             {
                 moveTime += 1f * Time.fixedDeltaTime;
+                animator.SetBool("isMoving", true);
             }
-            else if (waitTime < startWaitTime)
+            else if (waitTime < setWaitTime) // If the slime reaches its destination...
             {
                 moveTime = 0f;
+                animator.SetBool("isMoving", false);
             }
 
-            if (moveTime > moveTimeLimit)
+            if (moveTime > 1f)
             {
-                idleTimeLimit = Random.Range(minimumLimit, excludedLimit);
+                randomSpeed = Random.Range(minMoveSpeed, maxMoveSpeed);
                 canMove = false;
             }
 
-            toggleSpeed = moveSpeed;
+            defaultMoveSpeed = randomSpeed;
         }
         else
         {
             moveTime = 0f;
 
-            if (waitTime == startWaitTime)
+            if (waitTime == setWaitTime)
             {
                 idleTime += 1f * Time.fixedDeltaTime;
             }
-            else if (waitTime < startWaitTime)
+            else if (waitTime < setWaitTime) // If the slime reaches its destination...
             {
                 idleTime = 0f;
             }
 
-            if (idleTime > idleTimeLimit)
+            animator.SetBool("isMoving", false);
+
+            if (idleTime > 1f)
             {
-                moveTimeLimit = Random.Range(minimumLimit, excludedLimit);
                 canMove = true;
             }
 
-            toggleSpeed = 0f;
+            defaultMoveSpeed = 0f;
         }
     }
 
     private void Wandering()
     {
-        MoveTiming();
+        transform.position = Vector2.MoveTowards(transform.position, gameManagerScript.wanderingPoints[randomPoint].position,
+                                                defaultMoveSpeed * Time.fixedDeltaTime);
 
-        transform.position = Vector2.MoveTowards(transform.position, wanderingPointsScript.wanderPoints[randomPoint].position, 
-                                                toggleSpeed * Time.fixedDeltaTime);
-
-        if (Vector2.Distance(transform.position, wanderingPointsScript.wanderPoints[randomPoint].position) < stoppingDistance)
+        // If the slime reaches its destination...
+        if (Vector2.Distance(transform.position, gameManagerScript.wanderingPoints[randomPoint].position) < distanceThreshold)
         {
             if (waitTime <= 0f)
             {
-                randomPoint = Random.Range(0, wanderingPointsScript.wanderPoints.Length);
-                waitTime = startWaitTime;
+                randomPoint = Random.Range(0, gameManagerScript.wanderingPoints.Length);
+                waitTime = setWaitTime;
             }
             else
             {
                 waitTime -= Time.fixedDeltaTime;
             }
         }
-
-        /*
-        transform.position = Vector2.MoveTowards(transform.position, movePoint.position, toggleSpeed * Time.fixedDeltaTime);
-
-        if (Vector2.Distance(transform.position, movePoint.position) < stoppingDistance)
-        {
-            if (waitTime <= 0f)
-            {
-                movePoint.position = new Vector2(Random.Range(minX, maxX), Random.Range(minY, maxY));
-                waitTime = startWaitTime;
-            }
-            else
-            {
-                waitTime -= Time.fixedDeltaTime;
-            }
-        }
-        */
     }
 }

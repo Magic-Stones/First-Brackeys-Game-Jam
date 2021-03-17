@@ -4,64 +4,111 @@ using UnityEngine;
 
 public class PlayerManagerScript : MonoBehaviour
 {
-    public Transform cameraPosition;
-    public Camera cameraOrthographic;
     public Vector3 offsetCameraPosition,
                    offsetLocalScale;
-    private Transform player, playerSpawn;
 
-    private RandomSpawnScript randomSpawnScript;
+    private Camera cameraProjection;
+    private Rigidbody2D rigidBody2D;
+    private Transform cameraPosition;
+    private Transform playerPosition,
+                      playerSpawn;
+    private Vector2 movementAxis;
+
     private GameManagerScript gameManagerScript;
+    private RandomSpawnScript randomSpawnScript;
 
-    public int playerStrength;
+    public float moveSpeed = 0.1f;
+
+    public int playerStrength = 0;
+
+    private bool playerCanMove = false;
+    private bool playerDefeated = false;
+
+    private float idleTime, 
+                  moveTime;
+    private float defaultMoveSpeed;
+
+    private int enemiesDefeatCount = 0;
+
+    public bool GetPlayerDefeated()
+    {
+        return playerDefeated;
+    }
+    public int GetEnemiesDefeatCount()
+    {
+        return enemiesDefeatCount;
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        playerStrength = 0;
+        rigidBody2D = GetComponent<Rigidbody2D>();
 
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
+        cameraProjection = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+
+        cameraPosition = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Transform>();
+        playerPosition = GetComponent<Transform>();
         playerSpawn = GameObject.FindGameObjectWithTag("Spawn").GetComponent<Transform>();
 
-        randomSpawnScript = FindObjectOfType<RandomSpawnScript>();
         gameManagerScript = FindObjectOfType<GameManagerScript>();
+        randomSpawnScript = FindObjectOfType<RandomSpawnScript>();
+
+        defaultMoveSpeed = moveSpeed;
     }
 
     // Update is called once per frame
     void Update()
     {
         cameraPosition.position = transform.position + offsetCameraPosition;
+
+        InputProcess();
+    }
+
+    void FixedUpdate()
+    {
+        if (!gameManagerScript.GetGameIsOver())
+        {
+            MoveTiming();
+            PlayerMovement(true);
+        }
+        else
+        {
+            PlayerMovement(false);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag.Contains("Enemy"))
+        if (!gameManagerScript.ghostShroud)
         {
-            if (collision.GetComponent<EnemyAIScript>().enemySizeID == 0 && playerStrength == 0)
+            if (collision.tag.Contains("Enemy"))
             {
-                gameManagerScript.GameOver("Lose");
-                Destroy(gameObject);
-            }
-            else
-            {
-                if (collision.GetComponent<EnemyAIScript>().enemySizeID > playerStrength)
+                if (collision.GetComponent<EnemyAIScript>().enemySizeID == 0 && playerStrength == 0)
                 {
-                    gameManagerScript.GameOver("Lose");
+                    playerDefeated = true;
                     Destroy(gameObject);
                 }
-                else if (collision.GetComponent<EnemyAIScript>().enemySizeID == playerStrength)
+                else
                 {
-                    transform.localScale = transform.localScale - offsetLocalScale;
-                    playerStrength--;
-                    cameraOrthographic.orthographicSize--;
+                    if (collision.GetComponent<EnemyAIScript>().enemySizeID > playerStrength)
+                    {
+                        playerDefeated = true;
+                        Destroy(gameObject);
+                    }
+                    else if (collision.GetComponent<EnemyAIScript>().enemySizeID == playerStrength)
+                    {
+                        transform.localScale = transform.localScale - offsetLocalScale;
+                        playerStrength--;
+                        cameraProjection.orthographicSize--;
 
-                    randomSpawnScript.enemySpawnCount--;
-                    Destroy(collision.gameObject);
-                }
-                else if (collision.GetComponent<EnemyAIScript>().enemySizeID < playerStrength)
-                {
-                    randomSpawnScript.enemySpawnCount--;
-                    Destroy(collision.gameObject);
+                        enemiesDefeatCount++;
+                        Destroy(collision.gameObject);
+                    }
+                    else if (collision.GetComponent<EnemyAIScript>().enemySizeID < playerStrength)
+                    {
+                        enemiesDefeatCount++;
+                        Destroy(collision.gameObject);
+                    }
                 }
             }
         }
@@ -72,9 +119,9 @@ public class PlayerManagerScript : MonoBehaviour
             {
                 transform.localScale = transform.localScale + offsetLocalScale;
                 playerStrength++;
-                cameraOrthographic.orthographicSize++;
+                cameraProjection.orthographicSize++;
 
-                randomSpawnScript.neutralSpawnLimit--;
+                randomSpawnScript.GatherNeutralSlime();
                 Destroy(collision.gameObject);
             }
             else
@@ -83,9 +130,9 @@ public class PlayerManagerScript : MonoBehaviour
                 {
                     transform.localScale = transform.localScale + offsetLocalScale;
                     playerStrength++;
-                    cameraOrthographic.orthographicSize++;
+                    cameraProjection.orthographicSize++;
 
-                    randomSpawnScript.neutralSpawnLimit--;
+                    randomSpawnScript.GatherNeutralSlime();
                     Destroy(collision.gameObject);
                 }
             }
@@ -93,10 +140,11 @@ public class PlayerManagerScript : MonoBehaviour
 
         if (collision.tag.Contains("Border"))
         {
-            player.position = playerSpawn.position;
+            playerPosition.position = playerSpawn.position;
         }
     }
 
+    #region OnCollisionEnter2D
     /*
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -145,4 +193,57 @@ public class PlayerManagerScript : MonoBehaviour
         }
     }
     */
+    #endregion
+
+    private void InputProcess()
+    {
+        float xMove = Input.GetAxisRaw("Horizontal"), 
+              yMove = Input.GetAxisRaw("Vertical");
+
+        movementAxis = new Vector2(xMove, yMove).normalized;
+    }
+
+    private void MoveTiming()
+    {
+        float timeLimit = 1f;
+
+        if (!playerCanMove)
+        {
+            moveTime = 0f;
+
+            idleTime += Time.fixedDeltaTime;
+
+            if (idleTime > timeLimit)
+            {
+                playerCanMove = true;
+            }
+
+            defaultMoveSpeed = 0f;
+        }
+        else
+        {
+            idleTime = 0f;
+
+            moveTime += Time.fixedDeltaTime;
+
+            if (moveTime > timeLimit)
+            {
+                playerCanMove = false;
+            }
+
+            defaultMoveSpeed = moveSpeed;
+        }
+    }
+
+    private void PlayerMovement(bool gameOnGoing)
+    {
+        if (gameOnGoing)
+        {
+            rigidBody2D.velocity = new Vector2(movementAxis.x * defaultMoveSpeed, movementAxis.y * defaultMoveSpeed);
+        }
+        else
+        {
+            rigidBody2D.velocity = new Vector2(0f, 0f);
+        }
+    }
 }

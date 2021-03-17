@@ -23,7 +23,7 @@ public class GameUIScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        enemyCountText.text = randomSpawnScript.enemySpawnCount.ToString() + " / 10";
+        enemyCountText.text = playerManagerScript.GetEnemiesDefeatCount().ToString() + " / 10";
 
         if (playerManagerScript.playerStrength < 3)
         {
@@ -35,12 +35,12 @@ public class GameUIScript : MonoBehaviour
         }
     }
 
-    public void Retry()
+    public void RetryButton()
     {
         gameManagerScript.RetryGame();
     }
 
-    public void Menu()
+    public void MenuButton()
     {
         gameManagerScript.GoToMenu();
     }

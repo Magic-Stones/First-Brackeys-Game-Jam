@@ -6,23 +6,39 @@ using UnityEngine.SceneManagement;
 public class GameManagerScript : MonoBehaviour
 {
     public GameObject victoryPanel, defeatPanel;
+    public Transform[] wanderingPoints;
+
+    public bool ghostShroud = false;
+
+    public int defeatEnemiesGoal = 1;
+
+    private PlayerManagerScript playerManagerScript;
     private RandomSpawnScript randomSpawnScript;
 
-    public bool gameIsOver = false;
+    private bool gameIsOver = false;
+
+    public bool GetGameIsOver()
+    {
+        return gameIsOver;
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        playerManagerScript = FindObjectOfType<PlayerManagerScript>();
         randomSpawnScript = FindObjectOfType<RandomSpawnScript>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (randomSpawnScript.enemySpawnCount == 0)
+        if (playerManagerScript.GetEnemiesDefeatCount() == defeatEnemiesGoal)
         {
             GameOver("Win");
-            randomSpawnScript.enemySpawnCount++;
+        }
+        else if (playerManagerScript.GetPlayerDefeated())
+        {
+            GameOver("Lose");
         }
     }
 
@@ -41,6 +57,17 @@ public class GameManagerScript : MonoBehaviour
             gameIsOver = true;
 
             //Debug.Log("Game Over");
+        }
+    }
+
+    public void BudgetCoroutine()
+    {
+        float time = 0f;
+        time += Time.deltaTime;
+
+        if (time > 1f)
+        {
+            GameOver("Lose");
         }
     }
 

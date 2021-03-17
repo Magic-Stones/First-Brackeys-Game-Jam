@@ -4,28 +4,34 @@ using UnityEngine;
 
 public class EnemyAIScript : MonoBehaviour
 {
+    public float moveSpeed = 0.1f;
+    // public float distanceLimit;
+
     public int enemySizeID = 0;
 
-    public float moveSpeed = 0.1f;
-    public float distanceLimit;
-    public float minimumLimit, excludedLimit;
+    private Animator animator;
+    private Transform playerTarget;
+
+    private GameManagerScript gameManagerScript;
 
     private bool canMove = false;
 
-    [SerializeField] private float moveTime, idleTime;
-    private float toggleSpeed;
-    private float moveTimeLimit, idleTimeLimit;
-
-    private Transform playerTarget;
-    private GameManagerScript gameManagerScript;
+    private float moveTime, 
+                  idleTime;
+    private float maxMoveSpeed, 
+                  randomSpeed;
+    private float defaultMoveSpeed;
 
     // Start is called before the first frame update
     void Start()
     {
+        animator = GetComponent<Animator>();
         playerTarget = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
-        gameManagerScript = FindObjectOfType<GameManagerScript>();
 
-        idleTimeLimit = Random.Range(minimumLimit, excludedLimit);
+        gameManagerScript = FindObjectOfType<GameManagerScript>();
+        
+        maxMoveSpeed = moveSpeed + 0.5f;
+        randomSpeed = Random.Range(moveSpeed, maxMoveSpeed);
     }
 
     // Update is called once per frame
@@ -37,10 +43,9 @@ public class EnemyAIScript : MonoBehaviour
     // FixedUpdate is called every fixed framerate frame
     void FixedUpdate()
     {
-        if (!gameManagerScript.gameIsOver)
+        if (!gameManagerScript.GetGameIsOver())
         {
             MoveTiming();
-
             PlayerChasing();
         }
     }
@@ -52,14 +57,16 @@ public class EnemyAIScript : MonoBehaviour
             idleTime = 0f;
 
             moveTime += 1f * Time.fixedDeltaTime;
+
+            animator.SetBool("isMoving", true);
             
-            if (moveTime > moveTimeLimit)
+            if (moveTime > 1f)
             {
-                idleTimeLimit = Random.Range(minimumLimit, excludedLimit);
+                randomSpeed = Random.Range(moveSpeed, maxMoveSpeed);
                 canMove = false;
             }
 
-            toggleSpeed = moveSpeed;
+            defaultMoveSpeed = randomSpeed;
         }
         else
         {
@@ -67,21 +74,26 @@ public class EnemyAIScript : MonoBehaviour
 
             idleTime += 1f * Time.fixedDeltaTime;
 
-            if (idleTime > idleTimeLimit)
+            animator.SetBool("isMoving", false);
+
+            if (idleTime > 1f)
             {
-                moveTimeLimit = Random.Range(minimumLimit, excludedLimit);
                 canMove = true;
             }
 
-            toggleSpeed = 0f;
+            defaultMoveSpeed = 0f;
         }
     }
 
     private void PlayerChasing()
     {
+        transform.position = Vector2.MoveTowards(transform.position, playerTarget.position, defaultMoveSpeed * Time.fixedDeltaTime);
+
+        /*
         if (Vector2.Distance(transform.position, playerTarget.position) > distanceLimit)
         {
-            transform.position = Vector2.MoveTowards(transform.position, playerTarget.position, toggleSpeed * Time.fixedDeltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, playerTarget.position, defaultMoveSpeed * Time.fixedDeltaTime);
         }
+        */
     }
 }

@@ -4,23 +4,22 @@ using UnityEngine;
 
 public class RandomSpawnScript : MonoBehaviour
 {
-    public float setSlimeSpawnTime = 3f;
-
-    public int setEnemySpawnLimit = 5, 
-               setNeutralSpawnLimit = 3;
-    public int neutralSpawnLimit = 0, 
-               enemySpawnCount = 0;
- 
     public Transform[] spawnPoints;
     public GameObject[] spawnNeutrals;
     public GameObject[] spawnEnemies;
     public GameObject player;
 
+    public float setSlimeSpawnTime = 3f;
+
+    public int setEnemySpawnLimit = 1, 
+               setNeutralSpawnLimit = 1;
+
     private GameManagerScript gameManagerScript;
 
     private float slimeSpawnTime;
 
-    private int enemySpawnLimit = 0;
+    private int neutralSpawnCount = 0, 
+                enemySpawnCount = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -29,14 +28,12 @@ public class RandomSpawnScript : MonoBehaviour
         gameManagerScript = FindObjectOfType<GameManagerScript>();
 
         slimeSpawnTime = setSlimeSpawnTime;
-
-        EnemySlimeSpawn();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!gameManagerScript.gameIsOver)
+        if (!gameManagerScript.GetGameIsOver())
         {
             slimeSpawnTime -= Time.deltaTime;
 
@@ -51,22 +48,26 @@ public class RandomSpawnScript : MonoBehaviour
         }
     }
 
+    public void GatherNeutralSlime()
+    {
+        neutralSpawnCount--;
+    }
+
     private void EnemySlimeSpawn()
     {
-        if (enemySpawnLimit < setEnemySpawnLimit)
+        if (enemySpawnCount < setEnemySpawnLimit)
         {
             int randomSpawnPoint = Random.Range(0, spawnPoints.Length);
             int randomEnemy = Random.Range(0, spawnEnemies.Length);
 
             Instantiate(spawnEnemies[randomEnemy], spawnPoints[randomSpawnPoint].position, Quaternion.identity);
-            enemySpawnLimit++;
             enemySpawnCount++;
         }
     }
 
     private void NeutralSlimeSpawn()
     {
-        if (neutralSpawnLimit < setNeutralSpawnLimit)
+        if (neutralSpawnCount < setNeutralSpawnLimit)
         {
             int randomSpawnPoint = Random.Range(0, spawnPoints.Length);
 
@@ -85,7 +86,7 @@ public class RandomSpawnScript : MonoBehaviour
                     break;
             }
 
-            neutralSpawnLimit++;
+            neutralSpawnCount++;
         }
     }
 }
