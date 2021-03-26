@@ -7,6 +7,7 @@ public class PlayerManagerScript : MonoBehaviour
     public Vector3 offsetCameraPosition,
                    offsetLocalScale;
 
+    private Animator animator;
     private Camera cameraProjection;
     private Rigidbody2D rigidBody2D;
     private Transform cameraPosition;
@@ -42,6 +43,8 @@ public class PlayerManagerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        animator = GetComponent<Animator>();
+
         rigidBody2D = GetComponent<Rigidbody2D>();
 
         cameraProjection = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
@@ -77,6 +80,8 @@ public class PlayerManagerScript : MonoBehaviour
         }
     }
 
+    #region OnTriggerEnter2D
+    /*
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!gameManagerScript.ghostShroud)
@@ -143,32 +148,43 @@ public class PlayerManagerScript : MonoBehaviour
             playerPosition.position = playerSpawn.position;
         }
     }
+    */
+    #endregion
 
     #region OnCollisionEnter2D
-    /*
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.collider.tag.Contains("Enemy"))
+        if (!gameManagerScript.ghostShroud)
         {
-            if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID == 0 && playerStrength == 0)
+            if (collision.collider.tag.Contains("Enemy"))
             {
-                Destroy(gameObject);
-            }
-            else
-            {
-                if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID > playerStrength)
+                if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID == 0 && playerStrength == 0)
                 {
+                    playerDefeated = true;
                     Destroy(gameObject);
                 }
-                else if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID == playerStrength)
+                else
                 {
-                    transform.localScale = transform.localScale - offsetLocalScale;
-                    playerStrength--;
-                    Destroy(collision.collider.gameObject);
-                }
-                else if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID < playerStrength)
-                {
-                    Destroy(collision.collider.gameObject);
+                    if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID > playerStrength)
+                    {
+                        playerDefeated = true;
+                        Destroy(gameObject);
+                    }
+                    else if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID == playerStrength)
+                    {
+                        transform.localScale = transform.localScale - offsetLocalScale;
+                        moveSpeed += 0.25f;
+                        playerStrength--;
+                        cameraProjection.orthographicSize--;
+
+                        enemiesDefeatCount++;
+                        Destroy(collision.collider.gameObject);
+                    }
+                    else if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID < playerStrength)
+                    {
+                        enemiesDefeatCount++;
+                        Destroy(collision.collider.gameObject);
+                    }
                 }
             }
         }
@@ -178,7 +194,11 @@ public class PlayerManagerScript : MonoBehaviour
             if (collision.collider.GetComponent<SlimeAIScript>().neutralSizeID == 0 && playerStrength == 0)
             {
                 transform.localScale = transform.localScale + offsetLocalScale;
+                moveSpeed -= 0.25f;
                 playerStrength++;
+                cameraProjection.orthographicSize++;
+
+                randomSpawnScript.GatherNeutralSlime();
                 Destroy(collision.collider.gameObject);
             }
             else
@@ -186,13 +206,21 @@ public class PlayerManagerScript : MonoBehaviour
                 if (collision.collider.GetComponent<SlimeAIScript>().neutralSizeID == playerStrength)
                 {
                     transform.localScale = transform.localScale + offsetLocalScale;
+                    moveSpeed -= 0.25f;
                     playerStrength++;
+                    cameraProjection.orthographicSize++;
+
+                    randomSpawnScript.GatherNeutralSlime();
                     Destroy(collision.collider.gameObject);
                 }
             }
         }
+
+        if (collision.collider.tag.Contains("Border"))
+        {
+            playerPosition.position = playerSpawn.position;
+        }
     }
-    */
     #endregion
 
     private void InputProcess()
@@ -205,15 +233,48 @@ public class PlayerManagerScript : MonoBehaviour
 
     private void MoveTiming()
     {
-        float timeLimit = 1f;
+        float idleTimeLimit = 0.5f, 
+              moveTimeLimit = 1f;
 
+        if (playerCanMove)
+        {
+            idleTime = 0f;
+
+            moveTime += Time.fixedDeltaTime;
+
+            animator.SetBool("isMoving", true);
+
+            if (moveTime > moveTimeLimit)
+            {
+                playerCanMove = false;
+            }
+
+            defaultMoveSpeed = moveSpeed;
+        }
+        else
+        {
+            moveTime = 0f;
+
+            idleTime += Time.fixedDeltaTime;
+
+            animator.SetBool("isMoving", false);
+
+            if (idleTime > idleTimeLimit)
+            {
+                playerCanMove = true;
+            }
+
+            defaultMoveSpeed = 0f;
+        }
+
+        /*
         if (!playerCanMove)
         {
             moveTime = 0f;
 
             idleTime += Time.fixedDeltaTime;
 
-            if (idleTime > timeLimit)
+            if (idleTime > idleTimeLimit)
             {
                 playerCanMove = true;
             }
@@ -226,13 +287,14 @@ public class PlayerManagerScript : MonoBehaviour
 
             moveTime += Time.fixedDeltaTime;
 
-            if (moveTime > timeLimit)
+            if (moveTime > moveTimeLimit)
             {
                 playerCanMove = false;
             }
 
             defaultMoveSpeed = moveSpeed;
         }
+        */
     }
 
     private void PlayerMovement(bool gameOnGoing)

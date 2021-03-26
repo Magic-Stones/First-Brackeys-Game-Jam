@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 1335890015294476196}
   - component: {fileID: 1335890015294476197}
   - component: {fileID: 1335890015294476187}
-  - component: {fileID: 1335890015294476186}
   - component: {fileID: -1032561078312652000}
   - component: {fileID: 3632093424723371394}
+  - component: {fileID: 1335890015294476186}
   m_Layer: 0
   m_Name: Enemy Slime 2
   m_TagString: Enemy
@@ -95,7 +95,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: -0.000000059604645, y: -0.092503905}
@@ -111,20 +111,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.0144562, y: 0.70215297}
   m_EdgeRadius: 0
---- !u!114 &1335890015294476186
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1335890015294476198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6642e4f9f802c974da87d4e09bef08ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 2
-  enemySizeID: 2
 --- !u!50 &-1032561078312652000
 Rigidbody2D:
   serializedVersion: 4
@@ -133,13 +119,13 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1335890015294476198}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 0.0001
   m_LinearDrag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_GravityScale: 0
   m_Material: {fileID: 0}
   m_Interpolate: 0
@@ -165,3 +151,17 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &1335890015294476186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335890015294476198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6642e4f9f802c974da87d4e09bef08ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 1.5
+  enemySizeID: 2

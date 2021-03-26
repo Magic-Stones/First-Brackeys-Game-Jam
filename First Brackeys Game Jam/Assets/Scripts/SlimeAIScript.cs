@@ -6,7 +6,6 @@ public class SlimeAIScript : MonoBehaviour
 {
     public float moveSpeed = 0.1f;
     public float setWaitTime = 3f;
-    public float decreasePlayerMoveSpeed = 0.75f;
 
     public int neutralSizeID = 0;
 
@@ -61,6 +60,8 @@ public class SlimeAIScript : MonoBehaviour
         }
     }
 
+    #region OnTriggerEnter2D
+    /*
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag.Equals("Enemy"))
@@ -75,6 +76,25 @@ public class SlimeAIScript : MonoBehaviour
             }
         }
     }
+    */
+    #endregion
+
+    #region OnCollisionEnter2D
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.tag.Equals("Enemy"))
+        {
+            if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID == 0 && neutralSizeID == 0)
+            {
+                Destroy(gameObject);
+            }
+            else if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID > neutralSizeID)
+            {
+                Destroy(gameObject);
+            }
+        }
+    }
+    #endregion
 
     private void MoveTiming()
     {
