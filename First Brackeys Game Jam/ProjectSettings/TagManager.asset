@@ -6,7 +6,6 @@ TagManager:
   tags:
   - Enemy
   - Neutral
-  - Spawn
   - Border
   layers:
   - Default

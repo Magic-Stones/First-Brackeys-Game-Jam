@@ -64,16 +64,11 @@ public class SlimeAIScript : MonoBehaviour
     /*
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag.Equals("Enemy"))
+        EnemyAIScript enemyAIScript = collision.GetComponent<EnemyAIScript>();
+
+        if (enemyAIScript != null)
         {
-            if (collision.GetComponent<EnemyAIScript>().enemySizeID == 0 && neutralSizeID == 0)
-            {
-                Destroy(gameObject);
-            }
-            else if (collision.GetComponent<EnemyAIScript>().enemySizeID > neutralSizeID)
-            {
-                Destroy(gameObject);
-            }
+            Destroy(gameObject);
         }
     }
     */
@@ -82,16 +77,11 @@ public class SlimeAIScript : MonoBehaviour
     #region OnCollisionEnter2D
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.collider.tag.Equals("Enemy"))
+        EnemyAIScript enemyAIScript = collision.collider.GetComponent<EnemyAIScript>();
+
+        if (enemyAIScript != null)
         {
-            if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID == 0 && neutralSizeID == 0)
-            {
-                Destroy(gameObject);
-            }
-            else if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID > neutralSizeID)
-            {
-                Destroy(gameObject);
-            }
+            Destroy(gameObject);
         }
     }
     #endregion

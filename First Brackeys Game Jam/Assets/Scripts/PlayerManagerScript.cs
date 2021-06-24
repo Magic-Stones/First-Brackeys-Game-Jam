@@ -11,9 +11,8 @@ public class PlayerManagerScript : MonoBehaviour
     private Camera cameraProjection;
     private Rigidbody2D rigidBody2D;
     private Transform cameraPosition;
-    private Transform playerPosition,
-                      playerSpawn;
     private Vector2 movementAxis;
+    private Vector3 playerSpawn;
 
     private GameManagerScript gameManagerScript;
     private RandomSpawnScript randomSpawnScript;
@@ -50,8 +49,7 @@ public class PlayerManagerScript : MonoBehaviour
         cameraProjection = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
 
         cameraPosition = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Transform>();
-        playerPosition = GetComponent<Transform>();
-        playerSpawn = GameObject.FindGameObjectWithTag("Spawn").GetComponent<Transform>();
+        playerSpawn = transform.localPosition;
 
         gameManagerScript = FindObjectOfType<GameManagerScript>();
         randomSpawnScript = FindObjectOfType<RandomSpawnScript>();
@@ -86,30 +84,33 @@ public class PlayerManagerScript : MonoBehaviour
     {
         if (!gameManagerScript.ghostShroud)
         {
-            if (collision.tag.Contains("Enemy"))
+            EnemyAIScript enemyAIScript = collision.GetComponent<EnemyAIScript>();
+
+            if (enemyAIScript != null)
             {
-                if (collision.GetComponent<EnemyAIScript>().enemySizeID == 0 && playerStrength == 0)
+                if (enemyAIScript.enemySizeID == 0 && playerStrength == 0)
                 {
                     playerDefeated = true;
                     Destroy(gameObject);
                 }
                 else
                 {
-                    if (collision.GetComponent<EnemyAIScript>().enemySizeID > playerStrength)
+                    if (enemyAIScript.enemySizeID > playerStrength)
                     {
                         playerDefeated = true;
                         Destroy(gameObject);
                     }
-                    else if (collision.GetComponent<EnemyAIScript>().enemySizeID == playerStrength)
+                    else if (enemyAIScript.enemySizeID == playerStrength)
                     {
                         transform.localScale = transform.localScale - offsetLocalScale;
+                        moveSpeed += 0.25f;
                         playerStrength--;
                         cameraProjection.orthographicSize--;
 
                         enemiesDefeatCount++;
                         Destroy(collision.gameObject);
                     }
-                    else if (collision.GetComponent<EnemyAIScript>().enemySizeID < playerStrength)
+                    else if (enemyAIScript.enemySizeID < playerStrength)
                     {
                         enemiesDefeatCount++;
                         Destroy(collision.gameObject);
@@ -118,11 +119,14 @@ public class PlayerManagerScript : MonoBehaviour
             }
         }
 
-        if (collision.tag.Contains("Neutral"))
+        SlimeAIScript slimeAIScript = collision.GetComponent<SlimeAIScript>();
+
+        if (slimeAIScript != null)
         {
-            if (collision.GetComponent<SlimeAIScript>().neutralSizeID == 0 && playerStrength == 0)
+            if (slimeAIScript.neutralSizeID == 0 && playerStrength == 0)
             {
                 transform.localScale = transform.localScale + offsetLocalScale;
+                moveSpeed -= 0.25f;
                 playerStrength++;
                 cameraProjection.orthographicSize++;
 
@@ -131,9 +135,10 @@ public class PlayerManagerScript : MonoBehaviour
             }
             else
             {
-                if (collision.GetComponent<SlimeAIScript>().neutralSizeID == playerStrength)
+                if (slimeAIScript.neutralSizeID == playerStrength)
                 {
                     transform.localScale = transform.localScale + offsetLocalScale;
+                    moveSpeed -= 0.25f;
                     playerStrength++;
                     cameraProjection.orthographicSize++;
 
@@ -145,7 +150,7 @@ public class PlayerManagerScript : MonoBehaviour
 
         if (collision.tag.Contains("Border"))
         {
-            playerPosition.position = playerSpawn.position;
+            transform.position = playerSpawn;
         }
     }
     */
@@ -156,21 +161,23 @@ public class PlayerManagerScript : MonoBehaviour
     {
         if (!gameManagerScript.ghostShroud)
         {
-            if (collision.collider.tag.Contains("Enemy"))
+            EnemyAIScript enemyAIScript = collision.collider.GetComponent<EnemyAIScript>();
+
+            if (enemyAIScript != null)
             {
-                if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID == 0 && playerStrength == 0)
+                if (enemyAIScript.enemySizeID == 0 && playerStrength == 0)
                 {
                     playerDefeated = true;
                     Destroy(gameObject);
                 }
                 else
                 {
-                    if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID > playerStrength)
+                    if (enemyAIScript.enemySizeID > playerStrength)
                     {
                         playerDefeated = true;
                         Destroy(gameObject);
                     }
-                    else if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID == playerStrength)
+                    else if (enemyAIScript.enemySizeID == playerStrength)
                     {
                         transform.localScale = transform.localScale - offsetLocalScale;
                         moveSpeed += 0.25f;
@@ -180,7 +187,7 @@ public class PlayerManagerScript : MonoBehaviour
                         enemiesDefeatCount++;
                         Destroy(collision.collider.gameObject);
                     }
-                    else if (collision.collider.GetComponent<EnemyAIScript>().enemySizeID < playerStrength)
+                    else if (enemyAIScript.enemySizeID < playerStrength)
                     {
                         enemiesDefeatCount++;
                         Destroy(collision.collider.gameObject);
@@ -189,9 +196,11 @@ public class PlayerManagerScript : MonoBehaviour
             }
         }
 
-        if (collision.collider.tag.Contains("Neutral"))
+        SlimeAIScript slimeAIScript = collision.collider.GetComponent<SlimeAIScript>();
+
+        if (slimeAIScript != null)
         {
-            if (collision.collider.GetComponent<SlimeAIScript>().neutralSizeID == 0 && playerStrength == 0)
+            if (slimeAIScript.neutralSizeID == 0 && playerStrength == 0)
             {
                 transform.localScale = transform.localScale + offsetLocalScale;
                 moveSpeed -= 0.25f;
@@ -203,7 +212,7 @@ public class PlayerManagerScript : MonoBehaviour
             }
             else
             {
-                if (collision.collider.GetComponent<SlimeAIScript>().neutralSizeID == playerStrength)
+                if (slimeAIScript.neutralSizeID == playerStrength)
                 {
                     transform.localScale = transform.localScale + offsetLocalScale;
                     moveSpeed -= 0.25f;
@@ -218,7 +227,7 @@ public class PlayerManagerScript : MonoBehaviour
 
         if (collision.collider.tag.Contains("Border"))
         {
-            playerPosition.position = playerSpawn.position;
+            transform.position = playerSpawn;
         }
     }
     #endregion

@@ -544,7 +544,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'You can defeat still defeat these enemies according to your strength level:'
+  m_Text: 'You can still defeat these enemies according to your strength level:'
 --- !u!222 &75211133
 CanvasRenderer:
   m_ObjectHideFlags: 0
