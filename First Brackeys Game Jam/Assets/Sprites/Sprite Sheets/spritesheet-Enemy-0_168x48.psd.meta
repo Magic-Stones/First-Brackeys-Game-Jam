@@ -45,7 +45,7 @@ TextureImporter:
       213: -7904863522422224441
     second: spritesheet-Enemy-1_168x48_13
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -65,6 +65,8 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -74,8 +76,8 @@ TextureImporter:
   textureSettings:
     serializedVersion: 2
     filterMode: 0
-    aniso: -1
-    mipBias: -100
+    aniso: 1
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 1
@@ -96,10 +98,14 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -139,6 +145,30 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Server
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -456,6 +486,21 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      spritesheet-Enemy-1_168x48_8: 3869606151925324569
+      spritesheet-Enemy-1_168x48_0: 2314699657149457283
+      spritesheet-Enemy-1_168x48_5: 1178680512147004488
+      spritesheet-Enemy-1_168x48_3: -6682392696020199549
+      spritesheet-Enemy-1_168x48_13: -7904863522422224441
+      spritesheet-Enemy-1_168x48_10: -8801818226204892445
+      spritesheet-Enemy-1_168x48_6: 6944162682072709537
+      spritesheet-Enemy-1_168x48_11: 3991727160143962973
+      spritesheet-Enemy-1_168x48_7: 8259552590359050582
+      spritesheet-Enemy-1_168x48_4: -8548987486188864032
+      spritesheet-Enemy-1_168x48_2: -5435460374953007930
+      spritesheet-Enemy-1_168x48_1: 6592824310182998223
+      spritesheet-Enemy-1_168x48_12: 2382692302366317912
+      spritesheet-Enemy-1_168x48_9: 3447135674488187048
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 1
